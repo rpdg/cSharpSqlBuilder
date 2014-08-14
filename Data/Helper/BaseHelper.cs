@@ -104,6 +104,7 @@ namespace Lyu.Data.Helper
 		
 		/// <summary>
 		/// 返回最后一次查询的结果集的总数，非DataTable中的结果数
+		/// 需DataSet配合执行
 		/// </summary>
 		public int Count {
 			get {
@@ -121,15 +122,28 @@ namespace Lyu.Data.Helper
 		
 		
 		
-		
+		/// <summary>
+		/// 返回最后一次的操作结果DataPage
+		/// </summary>
 		public DataPage PageResult {
 			get {
 				var rs = this.Result;
 				var type = rs.GetType();
 				
-				return (DataPage) rs;
-				
-				//return null;
+				if (type == typeof(DataPage))
+					return (DataPage)rs;
+				else {
+					DataTable tb = this.TableResult;
+					return new DataPage { 
+						Table = tb,
+						Page = new PageInfo { 
+							pageSize = this.DefaultPagesize,
+							pageIndex = 0,
+							pageCount = 1,
+							rowCount = tb.Rows.Count
+						}
+					};
+				}
 			}
 		}
 		
@@ -154,9 +168,9 @@ namespace Lyu.Data.Helper
 		/// <param name="pageSize"></param>
 		/// <param name="pageIndex"></param>
 		/// <returns></returns>
-		public static PageInfo MakePageInfo(int rowCount , int pageSize , int pageIndex)
+		public static PageInfo MakePageInfo(int rowCount, int pageSize, int pageIndex)
 		{
-			return new PageInfo{
+			return new PageInfo {
 				rowCount = rowCount,
 				pageCount = (int)Math.Ceiling(rowCount / (double)pageSize),
 				pageSize = pageSize,

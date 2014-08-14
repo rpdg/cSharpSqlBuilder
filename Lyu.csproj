@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Data\Client\SqlClient.cs" />
     <Compile Include="Data\Helper\BaseHelper.cs" />
+    <Compile Include="Data\Helper\DAL.cs" />
     <Compile Include="Data\Helper\SqlServer.cs" />
     <Compile Include="Data\Types\DbTypes.cs" />
     <Compile Include="Json\DataConverter.cs" />
