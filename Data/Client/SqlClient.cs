@@ -99,7 +99,7 @@ namespace Lyu.Data.Client
 		/// <returns></returns>
 		public object ExecuteScalar(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false)
 		{
-			object val ;
+			object val;
 			
 			SqlCommand cmd = PrepareCommand(sql, sqlParameters, isStoredProcedure);
 			
@@ -131,10 +131,10 @@ namespace Lyu.Data.Client
 
 			try {
 				retVal = cmd.ExecuteNonQuery();
-				if (isTransaction) cmd.Transaction.Commit();
+				if (isTransaction)
+					cmd.Transaction.Commit();
 				
-			} 
-			catch (Exception e) {
+			} catch (Exception e) {
 				cmd.Transaction.Rollback();
 				throw new Exception("数据库操作错误。错误信息" + e.Message);
 			} finally {
@@ -143,7 +143,7 @@ namespace Lyu.Data.Client
 					Close();
 			}
 			
-			return retVal ;
+			return retVal;
 		}
 		
 		/// <summary>

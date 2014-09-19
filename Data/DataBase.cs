@@ -12,7 +12,7 @@ namespace Lyu.Data
 	/// </summary>
 	public class DataBase
 	{
-		private static readonly DBS _dbSets = DBS.Load("App_Code/sql.json");
+		private static readonly DBS _dbSets = DBS.Load("App_GlobalResources/sql.json");
 		
 		private static readonly string _typeName = "Lyu.Data.Helper." + _dbSets.Provider;
 		
