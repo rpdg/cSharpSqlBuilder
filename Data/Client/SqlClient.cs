@@ -10,9 +10,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Web;
-
 using Lyu.Data.Types;
-
 namespace Lyu.Data.Client
 {
 	/// <summary>
@@ -20,6 +18,7 @@ namespace Lyu.Data.Client
 	/// </summary>
 	public class SqlClient
 	{
+		private DbProviderFactory factory = SqlClientFactory.Instance ;//DbProviderFactories.GetFactory("SqlServer");
 		private string _connStr;
 		private SqlConnection _conn;
 		private bool _autoClose;
@@ -55,32 +54,33 @@ namespace Lyu.Data.Client
 		
 		public void Close()
 		{
-			if (_conn.State == ConnectionState.Open)
+			if (_conn.State == System.Data.ConnectionState.Open)
 				_conn.Close();
 		}
 		public void Dispose()
 		{
+			_conn.Close();
 			_conn.Dispose();
 		}
 		
-		SqlCommand PrepareCommand(string cmdText, DbParameter[] cmdParms, bool isStoredProcedure = false, bool isTransaction = false)
+		SqlCommand PrepareCommand(string cmdText, DbParameter[] parameters, bool isStoredProcedure = false, bool isTransaction = false)
 		{
 			SqlCommand cmd = new SqlCommand();
 			cmd.CommandText = cmdText;
 			cmd.Connection = _conn;
 			cmd.CommandType = isStoredProcedure ? CommandType.StoredProcedure : CommandType.Text;
 			
-			if (_conn.State != ConnectionState.Open)
+			if (_conn.State != System.Data.ConnectionState.Open)
 				_conn.Open();
 			
 			if (isTransaction)
 				cmd.Transaction = _conn.BeginTransaction();
 
 
-			if (cmdParms != null) {
-				int len = cmdParms.Length;
+			if (parameters != null) {
+				int len = parameters.Length;
 				for (int i = 0; i < len; i++) {
-					cmd.Parameters.Add((SqlParameter)cmdParms[i]);
+					cmd.Parameters.Add((SqlParameter)parameters[i]);
 				}
 			}
 			
@@ -94,14 +94,14 @@ namespace Lyu.Data.Client
 		/// 执行查询，并返回查询所返回的结果集中第一行的第一列
 		/// </summary>
 		/// <param name="sql"></param>
-		/// <param name="sqlParameters"></param>
+		/// <param name="parameters"></param>
 		/// <param name="isStoredProcedure"></param>
 		/// <returns></returns>
-		public object ExecuteScalar(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false)
+		public object ExecuteScalar(string sql, DbParameter[] parameters, bool isStoredProcedure = false)
 		{
 			object val;
 			
-			SqlCommand cmd = PrepareCommand(sql, sqlParameters, isStoredProcedure);
+			SqlCommand cmd = PrepareCommand(sql, parameters, isStoredProcedure);
 			
 			val = cmd.ExecuteScalar();
 			//HttpContext.Current.Response.Write("【"+ val.GetType() +"】");
@@ -112,7 +112,7 @@ namespace Lyu.Data.Client
 				Close();
 			
 			if (val == DBNull.Value || val == null)
-				val = String.Empty;
+				val = string.Empty;
 			return val;
 		}
 		
@@ -120,14 +120,14 @@ namespace Lyu.Data.Client
 		/// 执行 sql 语句并返回受影响的行数
 		/// </summary>
 		/// <param name="sql"></param>
-		/// <param name="sqlParameters"></param>
+		/// <param name="parameters"></param>
 		/// <param name="isStoredProcedure"></param>
 		/// <param name="isTransaction"></param>
 		/// <returns></returns>
-		public int ExecuteNonQuery(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false, bool isTransaction = false)
+		public int ExecuteNonQuery(string sql, DbParameter[] parameters, bool isStoredProcedure = false, bool isTransaction = false)
 		{
 			int retVal;
-			SqlCommand cmd = PrepareCommand(sql, sqlParameters, isStoredProcedure, isTransaction);
+			SqlCommand cmd = PrepareCommand(sql, parameters, isStoredProcedure, isTransaction);
 
 			try {
 				retVal = cmd.ExecuteNonQuery();
@@ -151,12 +151,12 @@ namespace Lyu.Data.Client
 		/// 外部调用建议使用以下两个ByDr的方法
 		/// </summary>
 		/// <param name="sql"></param>
-		/// <param name="sqlParameters"></param>
+		/// <param name="parameters"></param>
 		/// <param name="isStoredProcedure"></param>
 		/// <returns></returns>
-		private SqlDataReader GetDataReaderByCmd(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false)
+		private SqlDataReader GetDataReaderByCmd(string sql, DbParameter[] parameters, bool isStoredProcedure = false)
 		{
-			SqlCommand cmd = PrepareCommand(sql, sqlParameters, isStoredProcedure, false);
+			SqlCommand cmd = PrepareCommand(sql, parameters, isStoredProcedure, false);
 
 			SqlDataReader dr = cmd.ExecuteReader();
 
@@ -165,9 +165,9 @@ namespace Lyu.Data.Client
 			return dr;
 		}
 		
-		public DataTable GetTable(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false)
+		public DataTable GetTable(string sql, DbParameter[] parameters, bool isStoredProcedure = false)
 		{
-			SqlCommand cmd = PrepareCommand(sql, sqlParameters, isStoredProcedure);
+			SqlCommand cmd = PrepareCommand(sql, parameters, isStoredProcedure);
 			DataTable dt = new DataTable();
 			SqlDataAdapter da = new SqlDataAdapter(cmd);
 			da.Fill(dt);
@@ -185,14 +185,14 @@ namespace Lyu.Data.Client
 		/// 通过 DataReader 构建 DataTable 并返回
 		/// </summary>
 		/// <param name="sql"></param>
-		/// <param name="sqlParameters"></param>
+		/// <param name="parameters"></param>
 		/// <param name="isStoredProcedure"></param>
 		/// <returns></returns>
-		public DataTable GetTableByReader(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false)
+		public DataTable GetTableByReader(string sql, DbParameter[] parameters, bool isStoredProcedure = false)
 		{
 			DataTable dt = new DataTable();
 			
-			SqlDataReader dr = GetDataReaderByCmd(sql, sqlParameters, isStoredProcedure);
+			SqlDataReader dr = GetDataReaderByCmd(sql, parameters, isStoredProcedure);
 			
 			dt.Load(dr);
 			
@@ -207,12 +207,12 @@ namespace Lyu.Data.Client
 		/// 获得 DataSet
 		/// </summary>
 		/// <param name="sql"></param>
-		/// <param name="sqlParameters"></param>
+		/// <param name="parameters"></param>
 		/// <param name="isStoredProcedure"></param>
 		/// <returns></returns>
-		public DataSet GetDataSet(string sql, DbParameter[] sqlParameters, bool isStoredProcedure = false)
+		public DataSet GetDataSet(string sql, DbParameter[] parameters, bool isStoredProcedure = false)
 		{
-			SqlCommand cmd = PrepareCommand(sql, sqlParameters, isStoredProcedure);
+			SqlCommand cmd = PrepareCommand(sql, parameters, isStoredProcedure);
 			DataSet ds = new DataSet();
 			SqlDataAdapter da = new SqlDataAdapter(cmd);
 			da.Fill(ds);
@@ -223,6 +223,42 @@ namespace Lyu.Data.Client
 				Close();
 			
 			return ds;
+		}
+		
+		
+		public DbParameter CreateParameter(string name , DbType dbType, ParameterDirection direction)
+        {
+            DbParameter parameter = factory.CreateParameter() ;
+			parameter.ParameterName = name;
+			parameter.Direction = direction ;
+			parameter.DbType = dbType;
+			return parameter;
+        }
+		
+		public DbParameter CreateParameter(string name, object value , DbType dbType)
+        {
+            DbParameter parameter = factory.CreateParameter()  ;
+			parameter.ParameterName = name;
+			parameter.DbType = dbType;
+			parameter.Direction = ParameterDirection.Input ;
+			parameter.Value = (value == null) ? DBNull.Value : value;
+			return parameter;
+        }
+		
+		public DbParameter CreateParameter(string name, object value , DbType dbType , int size)
+        {
+			return CreateParameter(name, value , dbType , size , ParameterDirection.Input);
+        }
+		
+		public DbParameter CreateParameter(string name, object value, DbType dbType, int size, ParameterDirection direction)
+		{
+			DbParameter parameter = factory.CreateParameter()  ;
+			parameter.ParameterName = name;
+			parameter.DbType = dbType;
+			parameter.Size = size;
+			parameter.Direction = direction;
+			parameter.Value = (value == null) ? DBNull.Value : value;
+			return parameter;
 		}
 	}
 }

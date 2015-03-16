@@ -26,6 +26,7 @@ namespace Lyu.Json
 		
 		public static Dictionary<string, object> ParseVO(string vo)
 		{
+			//return JsonConvert.DeserializeObject<List<KeyValuePair<string , object>>>(vo);
 			return JsonConvert.DeserializeObject<Dictionary<string, object>>(vo);
 		}
 	}

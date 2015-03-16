@@ -46,7 +46,13 @@ namespace Lyu.Json
 				json.Converters.Add(new DataSetConverter());
 			else if (value is DataPage) {
 				DataPage dp = (DataPage)value;
-				return "{\"data\":" + DataConverter.Serialize(dp.Table) + ",\"page\":" + JsonConvert.SerializeObject(dp.Page) + "}";
+				return string.Concat(new string[] {
+					"{\"data\":",
+						DataConverter.Serialize(dp.Table),
+					",\"page\":",
+						JsonConvert.SerializeObject(dp.Page),
+					"}"
+				});
 			} 
 			else if (type == typeof(DateTime)) {
 				var dateConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd hh:mm:ss" };

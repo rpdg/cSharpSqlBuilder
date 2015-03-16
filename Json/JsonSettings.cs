@@ -28,7 +28,7 @@ namespace Lyu.Json
         	return HttpContext.Current.Server.MapPath(fileName);
         }
         
-        public static void Save<T>(T pSettings, string fileName)
+        public static void Save<P>(P pSettings, string fileName)
         {
             File.WriteAllText(MapPath(fileName), JsonConvert.SerializeObject(pSettings , Formatting.Indented));
         }

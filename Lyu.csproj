@@ -64,6 +64,8 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -71,17 +73,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Benchmark\CodeTimer.cs" />
+    <Compile Include="Data\Client\DataAccess.cs" />
     <Compile Include="Data\Client\SqlClient.cs" />
     <Compile Include="Data\Helper\BaseHelper.cs" />
     <Compile Include="Data\Helper\DAL.cs" />
     <Compile Include="Data\Helper\SqlServer.cs" />
     <Compile Include="Data\Types\DbTypes.cs" />
+    <Compile Include="Img\Thumbnailer.cs" />
     <Compile Include="Json\DataConverter.cs" />
     <Compile Include="Json\JRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Json\JsonSettings.cs" />
     <Compile Include="Data\DataBase.cs" />
+    <Compile Include="Text\StringBuffer.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Img" />
+    <Folder Include="Benchmark" />
+    <Folder Include="Text" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

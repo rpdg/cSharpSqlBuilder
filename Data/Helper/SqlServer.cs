@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Web;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Collections;
 using System.Collections.Generic;
-
 using Lyu.Data;
+using Lyu.Text;
 using Lyu.Data.Types;
 using Lyu.Data.Client;
-
+using System.Web;
 namespace Lyu.Data.Helper
 {
 	/// <summary>
@@ -138,12 +138,12 @@ namespace Lyu.Data.Helper
 			}
 			
 			string sortOn = string.IsNullOrEmpty(query.SortOn) ? CurrentTable.PrimaryKey : query.SortOn;
-			string sortType = string.IsNullOrEmpty(query.SortType) ? "ASC" : query.SortType.ToLower() == "asc" ? "ASC" : "DESC";
+			string sortType = string.Compare(query.SortType, "asc" , StringComparison.CurrentCultureIgnoreCase)==0 ? " ASC" : " DESC";
 			
 			int pz;
-			string sql;
+			StringBuffer sql = "Select Top " ;
 			WhereCondition which = MakeWhere(wheres);
-			
+			string tbWhere = Schema + CurrentTable.Name + which.WhereSql ;
 			//paginated data
 			if (query.PageSize > 0) {
 				
@@ -151,11 +151,10 @@ namespace Lyu.Data.Helper
 				
 				int offset = pz * query.PageIndex;
 			
-				sql = "Select top " + pz + " * FROM (Select " + showCols + ", ROW_NUMBER() OVER (ORDER BY " + sortOn + " " + sortType + ") AS TabRowNumber FROM " +
-				Schema + CurrentTable.Name + which.WhereSql +
-				") as TA WHERE TA.TabRowNumber>" + offset + ";";
+				sql += pz + " * FROM (Select " + showCols + ", ROW_NUMBER() OVER (ORDER BY " + sortOn + sortType + ") AS TabRowNumber FROM " ;
+				sql += tbWhere + ") as TA WHERE TA.TabRowNumber>" + offset + ";" ;
 			
-				sql += "Select @rowCount=Count(" + sortOn + ") FROM " + Schema + CurrentTable.Name + which.WhereSql;
+				sql += "Select @rowCount=Count(" + sortOn + ") FROM " + tbWhere ;
 			
 				SqlParameter rowCount = new SqlParameter("@rowCount", SqlDbType.Int) { 
 					Direction = ParameterDirection.Output 
@@ -179,11 +178,9 @@ namespace Lyu.Data.Helper
 				};
 			
 				return End(dp, sql);
-			} else {
-				pz = DefaultPagesize;
-				
-				sql = "Select Top " + pz + " " + showCols + " From " + Schema + CurrentTable.Name
-				+ which.WhereSql + " Order By " + sortOn + " " + sortType + ";";
+			} 
+			else {
+				sql += DefaultPagesize + ' ' + showCols + " From " + tbWhere + " Order By " + sortOn + sortType ;
 				
 				//HttpContext.Current.Response.Write("<hr>" + sql + "<hr><hr>");
 				//return this;
@@ -201,14 +198,15 @@ namespace Lyu.Data.Helper
 		public override BaseHelper GetField(Dictionary<string , object> wheres, QueryObj query, string whichColumn = null)
 		{
 			string showCols = whichColumn ?? CurrentTable.PrimaryKey;
+			
 			if (!CurrentTable.Columns.ContainsKey(whichColumn))
 				return End(string.Empty, string.Empty);
 			
-			string orderBySql = string.IsNullOrEmpty(query.SortOn) ? String.Empty : (" Order By " + query.SortOn);
+			StringBuffer orderBySql = string.IsNullOrEmpty(query.SortOn) ? string.Empty : (" Order By " + query.SortOn);
 			
 			WhereCondition which = MakeWhere(wheres);
 			
-			string sql = "Select " + showCols + " FROM " + CurrentTable.Name + which.WhereSql + orderBySql + " ;";
+			StringBuffer sql = "Select " + showCols + " FROM " + CurrentTable.Name + which.WhereSql + orderBySql + " ;";
 			
 			//HttpContext.Current.Response.Write("<hr>"+sql +  "<hr><hr>");
 			//return this;
@@ -264,7 +262,7 @@ namespace Lyu.Data.Helper
 					_colStrs.Append(fieldName + ",");
 					
 					//当 字段默认值为 函数
-					if (col.Default.IndexOf("()") > -1) {
+					if (col.Default.IndexOf("()" , StringComparison.Ordinal) > -1) {
 						_valueNames.Append(col.Default + ",");
 					} else {
 						SqlParameter param = makeParam(col, col.Default);
@@ -278,10 +276,13 @@ namespace Lyu.Data.Helper
 				}
 			}
 			
-			string sql = "Set Nocount On; Insert Into " + Schema + CurrentTable.Name
-			             + " (" + _colStrs.ToString(0, _colStrs.Length - 1) + ") Values ("
-			             + _valueNames.ToString(0, _valueNames.Length - 1)
-			             + ") ; SELECT @@IDENTITY ;Set Nocount Off;";
+			_colStrs.Length = _colStrs.Length-1 ;
+			_valueNames.Length = _valueNames.Length-1 ;
+			
+			StringBuffer sql = "Set Nocount On; Insert Into " + Schema + CurrentTable.Name
+			             + " (" + _colStrs + ") Values (" + _valueNames + ") ; SELECT @@IDENTITY ;Set Nocount Off;";
+			
+			
 			
 			//HttpContext.Current.Response.Write("<hr>"+sql +  "<hr><hr>");
 			//return this;
@@ -303,7 +304,7 @@ namespace Lyu.Data.Helper
 		{
 			Dictionary<string , Column> cols = CurrentTable.Columns;
 			
-			StringBuilder _valueNames = new StringBuilder();
+			StringBuffer _valueNames = string.Empty ;
 			List<SqlParameter> _parameters = new List<SqlParameter>();
 			
 			foreach (KeyValuePair<string, Column> kv in cols) {
@@ -316,9 +317,10 @@ namespace Lyu.Data.Helper
 					SqlParameter param = makeParam(col, updated[colName]);
 					_parameters.Add(param);
 					
-					_valueNames.Append(colName + "=" + param.ParameterName + ",");
+					_valueNames += colName + "=" + param.ParameterName + "," ;
 				}
 			}
+			
 			
 			WhereCondition whereObj = MakeWhere(wheres);
 			
@@ -329,7 +331,8 @@ namespace Lyu.Data.Helper
 			_parameters.CopyTo(paramx);
 			whereObj.Params.CopyTo(paramx, n);
 			
-			string sql = "Update " + Schema + CurrentTable.Name + " Set " + _valueNames.ToString(0, _valueNames.Length - 1) + " " + whereObj.WhereSql + " ; ";
+			StringBuffer sql = "Update " + Schema + CurrentTable.Name + " Set " + _valueNames.ToString(0, _valueNames.Length - 1) + " " + whereObj.WhereSql + " ; ";
+			
 			
 //			HttpContext.Current.Response.Write("<hr>"+sql +  "<hr>"+paramx.Length+"<hr>");
 //			for (int i = 0; i < paramx.Length ; i++){
@@ -353,10 +356,10 @@ namespace Lyu.Data.Helper
 		public override BaseHelper Del(Dictionary<string , object> wheres)
 		{
 			if (wheres == null)
-				throw new Exception("Error: 'WHERE' condition can't be null."); 
+				throw new InvalidExpressionException("Error: 'WHERE' condition can't be null."); 
 			
 			WhereCondition whereObj = MakeWhere(wheres);
-			string sql = "Delete From " + Schema + CurrentTable.Name + whereObj.WhereSql + " ; ";
+			StringBuffer sql = "Delete From " + Schema + CurrentTable.Name + whereObj.WhereSql + " ; ";
 			
 			if (inTrans)
 				return SetTrans(sql, whereObj.Params);
@@ -376,7 +379,7 @@ namespace Lyu.Data.Helper
 			
 			List<SqlParameter> parameters = new List<SqlParameter>();
 			
-			StringBuilder sb = new StringBuilder(" Where 1=1 ", 255);
+			StringBuffer sb = " Where 1=1 " ;
 			
 			
 			foreach (KeyValuePair<string, object> kv in wheres) {
@@ -385,20 +388,35 @@ namespace Lyu.Data.Helper
 				
 				if (hasColumn(key)) {
 					
-					string prc;
-					SqlParameter param ;
-					
-					if (val is KeyValuePair<string, object>) {
-						KeyValuePair<string, object> bv = (KeyValuePair<string, object>) val;
-						prc = bv.Key;
-						param = makeParam(CurrentTable.Columns[key], bv.Value);
+					/*if(val is List<KeyValuePair<string, object>>){
+						List<KeyValuePair<string, object>> lv = (List<KeyValuePair<string, object>>) val;
+						foreach(KeyValuePair<string, object> bv in lv){
+							
+							SqlParameter param = makeParam(CurrentTable.Columns[key], bv.Value);
+							
+							parameters.Add(param);
+							sb.Append(" And (" + key + bv.Key + param.ParameterName + ") ");
+						}
 					}
-					else{
-						prc = "=";
-						param = makeParam(CurrentTable.Columns[key], val);
-					}
-					parameters.Add(param);
-					sb.Append(" And (" + key + prc + param.ParameterName + ") ");
+					else{*/
+						string prc;
+						SqlParameter param ;
+						
+						
+						if (val is KeyValuePair<string, object>) {
+							KeyValuePair<string, object> bv = (KeyValuePair<string, object>) val;
+							prc = bv.Key;
+							param = makeParam(CurrentTable.Columns[key], bv.Value);
+						}
+						else{
+							prc = "=";
+							param = makeParam(CurrentTable.Columns[key], val);
+						}
+						parameters.Add(param);
+						
+						sb += " And (" + key + " " + prc + " " + param.ParameterName+ ") ";
+						
+					/*}*/
 				}
 			}
 			
@@ -420,7 +438,7 @@ namespace Lyu.Data.Helper
 		}
 		private bool hasColumn(string colName)
 		{
-			return (allColumnNames.IndexOf("[" + colName + "]") > -1);
+			return (allColumnNames.IndexOf("[" + colName + "]" , StringComparison.OrdinalIgnoreCase) > -1);
 		}
 		
 		
