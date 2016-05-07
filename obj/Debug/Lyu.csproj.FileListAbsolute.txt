@@ -1,0 +1,5 @@
+D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\GreenOlive3\bin\Lyu.dll
+D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\GreenOlive3\bin\Lyu.pdb
+D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\Lyu\SqlBuilder\obj\Debug\Lyu.csprojResolveAssemblyReference.cache
+D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\Lyu\SqlBuilder\obj\Debug\Lyu.dll
+D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\Lyu\SqlBuilder\obj\Debug\Lyu.pdb
