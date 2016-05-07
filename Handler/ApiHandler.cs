@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Web.SessionState;
-using Lyu;
-namespace QK.Handler
+
+namespace Lyu.Handler
 {
 	/// <summary>
 	/// API handler.
+	/*  <httpHandlers>
+			<add path="/api/*/*/*" verb="*" type="QK.Handler.ApiHandler, QK" />
+		</httpHandlers>*/
 	/// </summary>
 	public class ApiHandler : IHttpHandler, IRequiresSessionState
 	{
