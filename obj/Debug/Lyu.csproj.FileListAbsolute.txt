@@ -3,3 +3,8 @@ D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\GreenOlive3\bin\Lyu.pdb
 D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\Lyu\SqlBuilder\obj\Debug\Lyu.csprojResolveAssemblyReference.cache
 D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\Lyu\SqlBuilder\obj\Debug\Lyu.dll
 D:\Web Projects\GO3\GreenOlive3gb网站NET\GreenOlive3\Lyu\SqlBuilder\obj\Debug\Lyu.pdb
+D:\develop\Mr.Wang\QiaoKe\Web\web_app\bin\Lyu.dll
+D:\develop\Mr.Wang\QiaoKe\Web\web_app\bin\Lyu.pdb
+D:\develop\Mr.Wang\cSharpSqlBuilder\obj\Debug\Lyu.csprojResolveAssemblyReference.cache
+D:\develop\Mr.Wang\cSharpSqlBuilder\obj\Debug\Lyu.dll
+D:\develop\Mr.Wang\cSharpSqlBuilder\obj\Debug\Lyu.pdb
