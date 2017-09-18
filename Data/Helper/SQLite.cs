@@ -25,7 +25,8 @@ namespace Lyu.Data.Helper
 		SQLiteClient dac;
 		
 		//使用当前数据库
-		public SQLite(): this(DataBase.ConnectionString)
+		public SQLite()
+			: this(DataBase.ConnectionString)
 		{
 		}
 		
@@ -159,7 +160,7 @@ namespace Lyu.Data.Helper
 			
 				sql.AppendFormat("{0} FROM {1} ORDER BY {2} {3} LIMIT {4} OFFSET {5};", showCols, tbWhere, sortOn, sortType, pz, offset);
 				
-				sql.AppendFormat("SELECT $rowCount=Count({0}) FROM {1};" , sortOn , tbWhere);
+				sql.AppendFormat("SELECT $rowCount=Count({0}) FROM {1};", sortOn, tbWhere);
 			
 				//HttpContext.Current.Response.Write("<hr>" + sql + which.Params.Length + "<hr><hr>");
 				//return this;
@@ -388,7 +389,7 @@ namespace Lyu.Data.Helper
 				string key = kv.Key;
 				object val = kv.Value;
 				if (key.Contains("!")) {
-					key = key.Replace("!" , string.Empty);
+					key = key.Replace("!", string.Empty);
 				}
 
 				string prc;
@@ -410,8 +411,7 @@ namespace Lyu.Data.Helper
 						
 					sb.AppendFormat(" And ({0} {1} {2}) ", key, prc, param.ParameterName);
 						
-				}
-				else if(key.StartsWith("$" , StringComparison.InvariantCultureIgnoreCase)){
+				} else if (key.StartsWith("$", StringComparison.InvariantCultureIgnoreCase)) {
 					//
 					if (key.Equals("$or", StringComparison.InvariantCultureIgnoreCase)) {
 						// { "$or" : {"colName" : colValue} }
@@ -437,8 +437,7 @@ namespace Lyu.Data.Helper
 							}
 						}
 						//sb.AppendFormat(" And ({0} Or {1})");
-					} 
-					else if (key.Equals("$and", StringComparison.InvariantCultureIgnoreCase)) {
+					} else if (key.Equals("$and", StringComparison.InvariantCultureIgnoreCase)) {
 						// { "$and" : {"colName" : colValue} }
 						if (val is KeyValuePair<string, object>) {
 							var rv = (KeyValuePair<string, object>)val;
@@ -460,7 +459,7 @@ namespace Lyu.Data.Helper
 		private SQLiteParameter makeParam(Column col, object val)
 		{
 			string pName = "$" + col.Name + (++ParamCount);	
-			DbType  type = (DbType)Enum.Parse(typeof(DbType), col.Type, true);
+			DbType type = (DbType)Enum.Parse(typeof(DbType), col.Type, true);
 			
 			SQLiteParameter param = new SQLiteParameter(pName, type);
 			param.Value = val;
