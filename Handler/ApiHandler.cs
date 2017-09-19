@@ -11,8 +11,10 @@ namespace Lyu.Handler
 	/// <summary>
 	/// API handler.
 	/*  <httpHandlers>
-			<add path="/api/*/*/*" verb="*" type="QK.Handler.ApiHandler, QK" />
-		</httpHandlers>*/
+			<add path="/api/$star$/$star$/*" verb="*" type="Lyu.Handler.ApiHandler, Lyu" />
+		</httpHandlers>
+		$star$ is *
+	 */
 	/// </summary>
 	public class ApiHandler : IHttpHandler, IRequiresSessionState
 	{

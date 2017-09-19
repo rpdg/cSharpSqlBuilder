@@ -90,6 +90,7 @@
     <Compile Include="Data\Helper\SQLite.cs" />
     <Compile Include="Data\Helper\SqlServer.cs" />
     <Compile Include="Data\Types\DbTypes.cs" />
+    <Compile Include="Handler\ApiHandler.cs" />
     <Compile Include="Json\DataConverter.cs" />
     <Compile Include="Json\JRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +102,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Folder Include="Handler" />
     <Folder Include="Img\" />
   </ItemGroup>
 </Project>
