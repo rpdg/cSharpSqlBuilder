@@ -35,7 +35,7 @@ namespace Lyu.Data.Client
 		
 		public SQLiteClient(string connStr, bool autoClose)
 		{
-			_connStr = connStr;
+			_connStr = connStr.Replace("{AppDir}", AppDomain.CurrentDomain.BaseDirectory);;
 			_conn = new SQLiteConnection(connStr);
 			_autoClose = autoClose;
 		}
@@ -65,8 +65,11 @@ namespace Lyu.Data.Client
 			cmd.CommandType = isStoredProcedure ? CommandType.StoredProcedure : CommandType.Text;
 			cmd.CommandTimeout = 600;
 			
-			if (_conn.State != System.Data.ConnectionState.Open)
+			if (_conn.State != System.Data.ConnectionState.Open){
+				
 				_conn.Open();
+			}
+				
 			
 			if (isTransaction)
 				cmd.Transaction = _conn.BeginTransaction();
@@ -171,7 +174,9 @@ namespace Lyu.Data.Client
 			SQLiteCommand cmd = PrepareCommand(sql, parameters, isStoredProcedure);
 			DataSet ds = new DataSet();
 			SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
+			
 			da.Fill(ds);
+			
 			
 			cmd.Parameters.Clear();
 			

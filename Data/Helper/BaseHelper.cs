@@ -24,7 +24,7 @@ namespace Lyu.Data.Helper
 		public string allColumnNames;
 		public List<object> Results = new List<object>();
 		public List<string> SqlLogs = new List<string>();
-		public bool LogSql;
+		public bool LogSql = false;
 		public int DefaultPagesize = 100;
 		
 		//返回数据库连接状态

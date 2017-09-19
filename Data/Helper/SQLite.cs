@@ -160,7 +160,7 @@ namespace Lyu.Data.Helper
 			
 				sql.AppendFormat("{0} FROM {1} ORDER BY {2} {3} LIMIT {4} OFFSET {5};", showCols, tbWhere, sortOn, sortType, pz, offset);
 				
-				sql.AppendFormat("SELECT $rowCount=Count({0}) FROM {1};", sortOn, tbWhere);
+				sql.AppendFormat("SELECT Count({0}) AS rowCount FROM {1};", sortOn, tbWhere);
 			
 				//HttpContext.Current.Response.Write("<hr>" + sql + which.Params.Length + "<hr><hr>");
 				//return this;
