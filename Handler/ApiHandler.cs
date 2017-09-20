@@ -13,7 +13,8 @@ namespace Lyu.Handler
 	/*  <httpHandlers>
 			<add path="/api/$star$/$star$/*" verb="*" type="Lyu.Handler.ApiHandler, Lyu" />
 		</httpHandlers>
-		$star$ is *
+		note :  $star$ is *
+		usage:  http://server:port/api/{dll-file-name}/{class-name}/{static-func}?param1=val1...
 	 */
 	/// </summary>
 	public class ApiHandler : IHttpHandler, IRequiresSessionState
