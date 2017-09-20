@@ -10,7 +10,7 @@ using System;
 using System.Web;
 using System.Data;
 using Lyu.Json;
-using Lyu.Data.Types ;
+using Lyu.Data.Types;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 namespace Lyu
@@ -20,14 +20,22 @@ namespace Lyu
 	/// </summary>
 	public static class Util
 	{
-		public static T ParseJson<T>(this HttpRequest req, string paramName="vo")
+		public static T ParseJson<T>(this HttpRequest req, string paramName = "vo")
 		{
-			string json = req[paramName] ;
-			if(string.IsNullOrEmpty(json)){
-				json = "{}" ;
+			string json = req[paramName];
+			if (string.IsNullOrEmpty(json)) {
+				json = "{}";
 			}
 			
 			return json.Populate<T>();
+		}
+		
+		
+		public static void WriteErrorJson(this HttpResponse resp, Exception e, int httpCode = 200)
+		{
+			var outer = new LyuJson { error = e.Message };
+			resp.StatusCode = httpCode;				
+			resp.Write(DataConverter.Serialize(outer));
 		}
 		
 		public static void WriteJson(this HttpResponse resp, object val)
@@ -64,17 +72,13 @@ namespace Lyu
 					default:
 						if (type == typeof(DataTable)) {
 							resp.Write(((DataTable)val).Send());
-						} 
-						else if (type == typeof(DataSet)) {
+						} else if (type == typeof(DataSet)) {
 							resp.Write(((DataSet)val).Send());
-						} 
-						else if(type == typeof(DataPage)){
+						} else if (type == typeof(DataPage)) {
 							resp.Write(((DataPage)val).Send());
-						}
-						else if(type == typeof(LyuJson)){
+						} else if (type == typeof(LyuJson)) {
 							resp.Write(DataConverter.Serialize(val));
-						}
-						else {
+						} else {
 							//response.Write(obj.ToString());
 							
 							var outer = new LyuJson {
@@ -142,23 +146,23 @@ namespace Lyu
 		
 		public static T Populate<T>(this string jsonString)
 		{
-			T t = JsonConvert.DeserializeObject<T>(jsonString) ;
+			T t = JsonConvert.DeserializeObject<T>(jsonString);
 
-            return t;
+			return t;
 		}
 		
 		public static T Populate<T>(this DataRow row)
 		{
-			T t = JsonConvert.DeserializeObject<T>(DataConverter.Serialize(row)) ;
+			T t = JsonConvert.DeserializeObject<T>(DataConverter.Serialize(row));
 
-            return t;
+			return t;
 		}
 		
 		public static List<T> Populate<T>(this DataTable tb)
 		{
-			var list = JsonConvert.DeserializeObject<List<T>>(DataConverter.Serialize(tb)) ;
+			var list = JsonConvert.DeserializeObject<List<T>>(DataConverter.Serialize(tb));
 
-            return list;
+			return list;
 		}
 
 

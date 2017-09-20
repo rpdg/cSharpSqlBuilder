@@ -28,14 +28,21 @@ namespace Lyu.Handler
 			string className = p[3];
 			string methodName = p[4];
 
-			Type type = Assembly.Load(packageName).GetType(packageName + "." + className);
-			MethodInfo methodInfo = type.GetMethod(methodName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static);
+			try {
+				Type type = Assembly.Load(packageName).GetType(packageName + "." + className);
+				MethodInfo methodInfo = type.GetMethod(methodName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static);
 
-			object[] methodParam = ReturnMethodParams(req, methodInfo.GetParameters());
-			var result = methodInfo.Invoke(methodInfo, methodParam);
-
-			resp.WriteJson(result);
+				object[] methodParam = ReturnMethodParams(req, methodInfo.GetParameters());
 			
+				var result = methodInfo.Invoke(methodInfo, methodParam);
+				resp.WriteJson(result);
+			} 
+			catch (Exception e) {
+				if(e.InnerException != null)
+					e = e.InnerException ;
+				
+				resp.WriteErrorJson(e);
+			}
 			
 			/*resp.Write('\r');
 			resp.Write("----------------->");
@@ -94,8 +101,7 @@ namespace Lyu.Handler
 							parmObject[i] = request[parName];
 							break;
 					}
-				}
-				else {
+				} else {
 					parmObject[i] = parameterInfo.RawDefaultValue;
 				}
 			}
