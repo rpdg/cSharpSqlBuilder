@@ -18,22 +18,41 @@ namespace Lyu.Handler
 	/// </summary>
 	public class ApiHandler : IHttpHandler, IRequiresSessionState
 	{
-		public void ProcessRequest (HttpContext context)
+		public void ProcessRequest(HttpContext context)
 		{
 			HttpRequest req = context.Request;
 			HttpResponse resp = context.Response;
-			string [] p = req.Path.Split ('/');
-			string packageName = p [2];
-			string className = p [3];
-			string methodName = p [4];
+			string[] p = req.Path.Split('/');
+			string packageName = p[2];
+			string className = p[3];
+			string methodName = p[4];
 
-			Type type = Assembly.Load(packageName).GetType (packageName + "." + className);
-			MethodInfo methodInfo = type.GetMethod (methodName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static);
+			Type type = Assembly.Load(packageName).GetType(packageName + "." + className);
+			MethodInfo methodInfo = type.GetMethod(methodName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static);
 
-			object [] methodParam = ReturnMethodParams (req, methodInfo.GetParameters ());
-			var result = methodInfo.Invoke (methodInfo, methodParam);
+			object[] methodParam = ReturnMethodParams(req, methodInfo.GetParameters());
+			var result = methodInfo.Invoke(methodInfo, methodParam);
 
-			resp.WriteJson (result);
+			resp.WriteJson(result);
+			
+			
+			/*resp.Write('\r');
+			resp.Write("----------------->");
+			resp.Write('\r');
+			
+			var pms = methodInfo.GetParameters();
+			int l = pms.Length;
+			var arr = new object[l];
+			for (int i = 0; i < l; i++) {
+				ParameterInfo parameterInfo = pms[i];
+				arr[i] = new  {
+					name = parameterInfo.Name,
+					type = parameterInfo.ParameterType.ToString(),
+					defaultValue = parameterInfo.RawDefaultValue,
+					value = methodParam[i],
+				};
+			}
+			resp.WriteJson(arr);*/
 		}
 
 		public bool IsReusable {
@@ -41,33 +60,42 @@ namespace Lyu.Handler
 		}
 
 
-		private static object [] ReturnMethodParams (HttpRequest request, ParameterInfo [] methodParm)
+		private static object [] ReturnMethodParams(HttpRequest request, ParameterInfo[] methodParm)
 		{
 			int l = methodParm.Length;
-			object [] parmObject = new object [l];
+			object[] parmObject = new object [l];
 
+			
 			for (int i = 0; i < l; i++) {
 				
-				ParameterInfo parameterInfo = methodParm [i];
-				var parType = parameterInfo.ParameterType.ToString ();
+				ParameterInfo parameterInfo = methodParm[i];
+				var parType = parameterInfo.ParameterType.ToString();
 				var parName = parameterInfo.Name;
-				switch (parType) {
+				
+				
+				var param = request[parName];
+				if (param != null) {
+					switch (parType) {
 
-				case "System.Int16":
-					parmObject [i] = Lyu.Util.TryToShort (request [parName]);
-					break;
-				case "System.Decimal":
-					parmObject [i] = Lyu.Util.TryToDecimal (request [parName]);
-					break;
-				case "System.Int32":
-					parmObject [i] = Lyu.Util.TryToInt (request [parName]);
-					break;
-				case "System.Int64":
-					parmObject [i] = Lyu.Util.TryToLong (request [parName]);
-					break;
-				default:
-					parmObject [i] = request [parName];
-					break;
+						case "System.Int16":
+							parmObject[i] = Lyu.Util.TryToShort(request[parName]);
+							break;
+						case "System.Decimal":
+							parmObject[i] = Lyu.Util.TryToDecimal(request[parName]);
+							break;
+						case "System.Int32":
+							parmObject[i] = Lyu.Util.TryToInt(request[parName]);
+							break;
+						case "System.Int64":
+							parmObject[i] = Lyu.Util.TryToLong(request[parName]);
+							break;
+						default:
+							parmObject[i] = request[parName];
+							break;
+					}
+				}
+				else {
+					parmObject[i] = parameterInfo.RawDefaultValue;
 				}
 			}
 
